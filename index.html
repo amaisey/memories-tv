@@ -10,107 +10,49 @@
   :root { --cream: #f0e8d8; --gold: #c9a84c; --dark: #080808; }
   html, body { width: 100%; height: 100%; background: var(--dark); color: var(--cream); font-family: 'Josefin Sans', sans-serif; overflow: hidden; }
   body::after { content: ''; position: fixed; inset: 0; z-index: 100; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E"); background-size: 256px; opacity: 0.4; }
-  .card { width: min(680px, 90vw); padding: 56px 64px; border: 1px solid rgba(201,168,76,0.25); background: rgba(255,255,255,0.025); backdrop-filter: blur(20px); }
-  .card h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 300; font-style: italic; letter-spacing: -0.02em; margin-bottom: 6px; }
-  .card .tagline { font-size: 0.68rem; font-weight: 100; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 40px; }
-  .divider { width: 40px; height: 1px; background: rgba(201,168,76,0.3); margin: 32px 0; }
-  .label { font-size: 0.6rem; font-weight: 300; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
-  .body-text { font-size: 0.78rem; font-weight: 300; letter-spacing: 0.06em; color: rgba(240,232,216,0.65); line-height: 1.75; }
-  .body-text a { color: var(--gold); text-decoration: none; border-bottom: 1px solid rgba(201,168,76,0.4); }
-  .body-text code { font-family: monospace; font-size: 0.7rem; background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.2); padding: 2px 7px; color: var(--gold); }
-  .input-row { display: flex; gap: 12px; margin-top: 10px; }
-  input[type="text"] { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.3); color: var(--cream); font-family: 'Josefin Sans', sans-serif; font-size: 0.72rem; font-weight: 300; letter-spacing: 0.05em; padding: 14px 18px; outline: none; transition: border-color 0.3s; }
-  input[type="text"]:focus { border-color: var(--gold); }
-  input[type="text"]::placeholder { color: rgba(240,232,216,0.3); }
-  .btn { background: var(--gold); color: var(--dark); border: none; font-family: 'Josefin Sans', sans-serif; font-size: 0.65rem; font-weight: 400; letter-spacing: 0.25em; text-transform: uppercase; padding: 14px 28px; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
-  .btn:hover { opacity: 0.85; }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .error-msg { margin-top: 10px; font-size: 0.68rem; color: #e07070; letter-spacing: 0.05em; min-height: 18px; }
-  .screen { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center; background: var(--dark); animation: fadeIn 0.6s ease; }
-  .screen.active { display: flex; }
-  #albumList { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; margin-top: 12px; padding-right: 4px; }
-  #albumList::-webkit-scrollbar { width: 4px; }
-  #albumList::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
-  #albumList::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); }
-  .album-item { display: flex; align-items: center; gap: 16px; padding: 12px 16px; border: 1px solid rgba(201,168,76,0.12); background: rgba(255,255,255,0.02); cursor: pointer; transition: all 0.2s; }
-  .album-item:hover { border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.06); }
-  .album-thumb { width: 48px; height: 48px; background-size: cover; background-position: center; flex-shrink: 0; background-color: rgba(255,255,255,0.05); }
-  .album-info { flex: 1; min-width: 0; }
-  .album-name { font-size: 0.75rem; font-weight: 300; letter-spacing: 0.08em; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .album-count { font-size: 0.58rem; font-weight: 100; letter-spacing: 0.15em; color: rgba(240,232,216,0.35); margin-top: 3px; }
-  .loader-text { font-size: 0.65rem; font-weight: 100; letter-spacing: 0.35em; text-transform: uppercase; color: rgba(201,168,76,0.7); animation: pulse 2s ease-in-out infinite; }
-  .loader-bar { width: 200px; height: 1px; background: rgba(201,168,76,0.15); position: relative; overflow: hidden; margin-top: 20px; }
-  .loader-bar::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--gold); animation: slide 1.4s ease-in-out infinite; }
-  #slideshow { position: fixed; inset: 0; z-index: 10; display: none; }
-  .photo-layer { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.5s ease; }
+  #loading { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--dark); }
+  .load-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 6vw, 5rem); font-weight: 300; font-style: italic; color: var(--cream); letter-spacing: -0.02em; margin-bottom: 16px; }
+  .load-sub { font-size: 0.62rem; font-weight: 100; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(201,168,76,0.6); animation: pulse 2s ease-in-out infinite; }
+  .load-bar { width: 160px; height: 1px; background: rgba(201,168,76,0.15); position: relative; overflow: hidden; margin-top: 28px; }
+  .load-bar::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--gold); animation: slide 1.4s ease-in-out infinite; }
+  .load-error { font-size: 0.7rem; color: #e07070; letter-spacing: 0.08em; margin-top: 24px; max-width: 420px; text-align: center; line-height: 1.8; display: none; font-weight: 300; }
+  .retry-btn { margin-top: 20px; background: transparent; border: 1px solid rgba(201,168,76,0.3); color: var(--gold); font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; padding: 10px 24px; cursor: pointer; display: none; transition: all 0.2s; }
+  .retry-btn:hover { border-color: var(--gold); }
+  #slideshow { position: fixed; inset: 0; z-index: 10; }
+  .photo-layer { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.8s ease; }
   .photo-layer.visible { opacity: 1; }
-  #slideshow::before { content: ''; position: absolute; inset: 0; z-index: 2; background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%); pointer-events: none; }
-  #slideshow::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 50%; z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%); pointer-events: none; }
-  #info { position: absolute; bottom: 0; left: 0; right: 0; z-index: 5; padding: 48px 72px; display: flex; align-items: flex-end; justify-content: space-between; }
+  #slideshow::before { content: ''; position: absolute; inset: 0; z-index: 2; background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.55) 100%); pointer-events: none; }
+  #slideshow::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 55%; z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%); pointer-events: none; }
+  #info { position: absolute; bottom: 0; left: 0; right: 0; z-index: 5; padding: 52px 80px; display: flex; align-items: flex-end; justify-content: space-between; }
   .time-block { max-width: 65%; }
-  .time-ago { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 7vw, 6rem); font-weight: 300; font-style: italic; color: var(--cream); line-height: 1; letter-spacing: -0.02em; text-shadow: 0 2px 40px rgba(0,0,0,0.8); opacity: 0; transform: translateY(12px); transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s; }
+  .time-ago { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 300; font-style: italic; color: var(--cream); line-height: 1; letter-spacing: -0.02em; text-shadow: 0 2px 48px rgba(0,0,0,0.9); opacity: 0; transform: translateY(14px); transition: opacity 0.9s ease 0.3s, transform 0.9s ease 0.3s; }
   .time-ago.show { opacity: 1; transform: translateY(0); }
-  .exact-date { font-size: clamp(0.58rem, 1.2vw, 0.82rem); font-weight: 100; letter-spacing: 0.28em; text-transform: uppercase; color: var(--gold); margin-top: 14px; text-shadow: 0 1px 10px rgba(0,0,0,0.9); opacity: 0; transition: opacity 0.8s ease 0.5s; }
+  .exact-date { font-size: clamp(0.55rem, 1.1vw, 0.8rem); font-weight: 100; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-top: 16px; text-shadow: 0 1px 12px rgba(0,0,0,0.95); opacity: 0; transition: opacity 0.9s ease 0.5s; }
   .exact-date.show { opacity: 1; }
-  .hud { text-align: right; opacity: 0; transition: opacity 0.8s ease 0.4s; }
+  .hud { text-align: right; opacity: 0; transition: opacity 0.9s ease 0.4s; }
   .hud.show { opacity: 1; }
-  .hud-time { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 300; color: var(--cream); text-shadow: 0 1px 10px rgba(0,0,0,0.9); }
-  .hud-sub { font-size: 0.58rem; font-weight: 100; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(240,232,216,0.4); margin-top: 5px; }
-  .hud-count { font-size: 0.52rem; font-weight: 100; letter-spacing: 0.18em; color: rgba(240,232,216,0.25); margin-top: 8px; }
-  .back-btn { position: absolute; top: 36px; left: 48px; z-index: 5; background: none; border: 1px solid rgba(201,168,76,0.2); color: rgba(240,232,216,0.3); font-family: 'Josefin Sans', sans-serif; font-size: 0.5rem; letter-spacing: 0.25em; text-transform: uppercase; padding: 8px 16px; cursor: pointer; transition: all 0.2s; }
-  .back-btn:hover { color: var(--cream); border-color: rgba(201,168,76,0.5); }
-  .kb-hint { position: absolute; top: 36px; right: 48px; z-index: 5; font-size: 0.5rem; font-weight: 100; letter-spacing: 0.18em; color: rgba(240,232,216,0.18); text-transform: uppercase; text-align: right; line-height: 2.2; }
-  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-  @keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+  .hud-time { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.6rem, 3.2vw, 2.4rem); font-weight: 300; color: var(--cream); text-shadow: 0 1px 12px rgba(0,0,0,0.95); }
+  .hud-sub { font-size: 0.56rem; font-weight: 100; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(240,232,216,0.38); margin-top: 6px; }
+  .hud-count { font-size: 0.5rem; font-weight: 100; letter-spacing: 0.2em; color: rgba(240,232,216,0.22); margin-top: 10px; }
+  #kb { position: absolute; top: 40px; right: 52px; z-index: 5; font-size: 0.48rem; font-weight: 100; letter-spacing: 0.18em; color: rgba(240,232,216,0.15); text-transform: uppercase; text-align: right; line-height: 2.4; }
+  @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
   @keyframes slide { 0%{left:-100%} 50%{left:0%} 100%{left:100%} }
 </style>
 </head>
 <body>
 
-<div class="screen active" id="screenSetup">
-  <div class="card">
-    <h1>Memories</h1>
-    <p class="tagline">Your photos, across time</p>
-    <div class="label">Step 01 — Google Cloud</div>
-    <p class="body-text">
-      Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>,
-      create a project, and enable the <strong>Photos Library API</strong>.
-      Under <em>Credentials</em>, create an <strong>OAuth 2.0 Client ID</strong>
-      for a <code>Web application</code> and add this page's URL as an
-      <strong>Authorized JavaScript Origin</strong>.
-      Under <em>OAuth consent screen</em>, add your Google account as a test user.
-    </p>
-    <div class="divider"></div>
-    <div class="label">Step 02 — Client ID</div>
-    <div class="input-row">
-      <input type="text" id="clientId" placeholder="your-client-id.apps.googleusercontent.com" />
-      <button class="btn" id="signInBtn" onclick="startSignIn()">Sign In</button>
-    </div>
-    <div class="error-msg" id="setupError"></div>
-  </div>
+<div id="loading">
+  <div class="load-title">Memories</div>
+  <div class="load-sub" id="loadSub">Loading your photos</div>
+  <div class="load-bar" id="loadBar"></div>
+  <div class="load-error" id="loadError"></div>
+  <button class="retry-btn" id="retryBtn" onclick="init()">Try Again</button>
 </div>
 
-<div class="screen" id="screenAlbums">
-  <div class="card">
-    <h1>Choose Album</h1>
-    <p class="tagline">Select a folder or use all photos</p>
-    <button class="btn" style="width:100%;margin-bottom:16px" onclick="startSlideshow(null)">All Photos</button>
-    <div class="label">— or pick an album —</div>
-    <div id="albumList"><div class="body-text" style="padding:16px 0;opacity:.5">Loading albums…</div></div>
-    <div class="error-msg" id="albumError"></div>
-  </div>
-</div>
-
-<div class="screen" id="screenLoading">
-  <div class="loader-text">Loading memories</div>
-  <div class="loader-bar"></div>
-</div>
-
-<div id="slideshow">
+<div id="slideshow" style="display:none">
   <div class="photo-layer" id="layerA"></div>
   <div class="photo-layer" id="layerB"></div>
-  <button class="back-btn" onclick="goToAlbums()">← Albums</button>
-  <div class="kb-hint">← → &nbsp;Navigate<br>Space &nbsp;Next<br>F &nbsp;Fullscreen<br>Esc &nbsp;Albums</div>
+  <div id="kb">← → Navigate &nbsp;&nbsp; Space Next<br>F Fullscreen</div>
   <div id="info">
     <div class="time-block">
       <div class="time-ago" id="timeAgo"></div>
@@ -125,181 +67,123 @@
 </div>
 
 <script>
-let accessToken=null,photos=[],currentIndex=0,activeLayer='A',slideTimer=null,clockTimer=null;
-const SLIDE_DURATION=10000;
+let photos=[], currentIndex=0, activeLayer='A', slideTimer=null, clockTimer=null;
+const SLIDE_DURATION = 10000;
 
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  if(id) document.getElementById(id).classList.add('active');
-}
+async function init() {
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('slideshow').style.display='none';
+  document.getElementById('loadError').style.display='none';
+  document.getElementById('retryBtn').style.display='none';
+  document.getElementById('loadBar').style.display='block';
+  document.getElementById('loadSub').textContent='Loading your photos';
 
-function startSignIn(){
-  const clientId=document.getElementById('clientId').value.trim();
-  if(!clientId){setError('setupError','Please enter your Client ID.');return;}
-  document.getElementById('signInBtn').disabled=true;
-  setError('setupError','');
-  const client=google.accounts.oauth2.initTokenClient({
-    client_id:clientId,
-    scope:'https://www.googleapis.com/auth/photoslibrary.readonly',
-    callback:async(resp)=>{
-      if(resp.error){setError('setupError','Sign-in failed: '+resp.error);document.getElementById('signInBtn').disabled=false;return;}
-      accessToken=resp.access_token;
-      showScreen('screenAlbums');
-      await loadAlbums();
-    }
-  });
-  client.requestAccessToken();
-}
+  try {
+    const resp = await fetch('/api/photos');
+    const data = await resp.json();
+    if (data.error && !data.photos?.length) throw new Error(data.error);
 
-async function loadAlbums(){
-  const list=document.getElementById('albumList');
-  list.innerHTML='<div class="body-text" style="padding:16px 0;opacity:.5">Loading albums…</div>';
-  try{
-    const resp=await fetch('https://photoslibrary.googleapis.com/v1/albums?pageSize=50',{headers:{'Authorization':'Bearer '+accessToken}});
-    if(!resp.ok) throw new Error('API error '+resp.status);
-    const data=await resp.json();
-    const albums=data.albums||[];
-    if(!albums.length){list.innerHTML='<div class="body-text" style="opacity:.5">No albums found.</div>';return;}
-    list.innerHTML='';
-    albums.forEach(album=>{
-      const item=document.createElement('div');
-      item.className='album-item';
-      item.innerHTML=`<div class="album-thumb" style="${album.coverPhotoBaseUrl?`background-image:url('${album.coverPhotoBaseUrl}=w96-h96-c')`:''}"></div><div class="album-info"><div class="album-name">${album.title||'Untitled Album'}</div><div class="album-count">${album.mediaItemsCount||'?'} photos</div></div>`;
-      item.onclick=()=>startSlideshow(album.id);
-      list.appendChild(item);
-    });
-  }catch(e){setError('albumError','Error loading albums: '+e.message);}
-}
-
-async function startSlideshow(albumId){
-  showScreen('screenLoading');
-  try{
-    photos=albumId?await fetchAlbumPhotos(albumId):await fetchAllPhotos();
-    photos=photos.filter(p=>p.mediaMetadata&&!p.mediaMetadata.video);
+    photos = (data.photos || []).filter(p => p.url);
     shuffle(photos);
-    if(!photos.length){setError('albumError','No photos found.');showScreen('screenAlbums');return;}
-    showScreen(null);
-    document.getElementById('slideshow').style.display='block';
-    currentIndex=0;activeLayer='A';
-    showPhoto(0);startClock();
-  }catch(e){setError('albumError','Error: '+e.message);showScreen('screenAlbums');}
+    if (!photos.length) throw new Error('No photos found in the album.');
+
+    document.getElementById('loadSub').textContent = photos.length + ' photos loaded';
+    document.getElementById('loadBar').style.display = 'none';
+
+    setTimeout(() => {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('slideshow').style.display = 'block';
+      currentIndex=0; activeLayer='A';
+      showPhoto(0);
+      startClock();
+    }, 600);
+
+  } catch(e) {
+    document.getElementById('loadBar').style.display='none';
+    document.getElementById('loadSub').textContent='Something went wrong';
+    document.getElementById('loadError').textContent = e.message;
+    document.getElementById('loadError').style.display='block';
+    document.getElementById('retryBtn').style.display='block';
+  }
 }
 
-async function fetchAlbumPhotos(albumId){
-  let all=[],pageToken=null,pages=0;
-  do{
-    const body={albumId,pageSize:100};
-    if(pageToken) body.pageToken=pageToken;
-    const resp=await fetch('https://photoslibrary.googleapis.com/v1/mediaItems:search',{method:'POST',headers:{'Authorization':'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(!resp.ok) throw new Error('API error '+resp.status);
-    const data=await resp.json();
-    if(data.mediaItems) all=all.concat(data.mediaItems);
-    pageToken=data.nextPageToken;pages++;
-  }while(pageToken&&pages<10);
-  return all;
-}
-
-async function fetchAllPhotos(){
-  let all=[],pageToken=null,pages=0;
-  do{
-    const url=new URL('https://photoslibrary.googleapis.com/v1/mediaItems');
-    url.searchParams.set('pageSize','100');
-    if(pageToken) url.searchParams.set('pageToken',pageToken);
-    const resp=await fetch(url,{headers:{'Authorization':'Bearer '+accessToken}});
-    if(!resp.ok) throw new Error('API error '+resp.status);
-    const data=await resp.json();
-    if(data.mediaItems) all=all.concat(data.mediaItems);
-    pageToken=data.nextPageToken;pages++;
-  }while(pageToken&&pages<5);
-  return all;
-}
-
-function showPhoto(index){
-  if(!photos.length) return;
-  currentIndex=((index%photos.length)+photos.length)%photos.length;
-  const photo=photos[currentIndex];
-  ['timeAgo','exactDate','hud'].forEach(id=>document.getElementById(id).classList.remove('show'));
-  const inId=activeLayer==='A'?'layerA':'layerB';
-  const outId=activeLayer==='A'?'layerB':'layerA';
-  const img=new Image();
-  img.onload=()=>{
-    const inn=document.getElementById(inId);
-    const out=document.getElementById(outId);
-    inn.style.backgroundImage=`url('${photo.baseUrl}=w1920-h1080')`;
-    inn.classList.add('visible');
-    out.classList.remove('visible');
-    activeLayer=activeLayer==='A'?'B':'A';
-    setTimeout(()=>{
-      const ta=document.getElementById('timeAgo');
-      const ed=document.getElementById('exactDate');
-      const hud=document.getElementById('hud');
-      ta.textContent=relativeTime(photo.mediaMetadata.creationTime);
+function showPhoto(index) {
+  if (!photos.length) return;
+  currentIndex = ((index % photos.length) + photos.length) % photos.length;
+  const photo = photos[currentIndex];
+  ['timeAgo','exactDate','hud'].forEach(id => document.getElementById(id).classList.remove('show'));
+  const inId = activeLayer==='A' ? 'layerA' : 'layerB';
+  const outId = activeLayer==='A' ? 'layerB' : 'layerA';
+  const img = new Image();
+  img.onload = () => {
+    document.getElementById(inId).style.backgroundImage = `url('${photo.url}=w1920-h1080')`;
+    document.getElementById(inId).classList.add('visible');
+    document.getElementById(outId).classList.remove('visible');
+    activeLayer = activeLayer==='A' ? 'B' : 'A';
+    setTimeout(() => {
+      const ta = document.getElementById('timeAgo');
+      const ed = document.getElementById('exactDate');
+      if (photo.date) {
+        ta.textContent = relativeTime(photo.date);
+        ed.textContent = formatDate(photo.date);
+      } else {
+        ta.textContent = '';
+        ed.textContent = 'Date unknown';
+      }
       ta.classList.add('show');
-      ed.textContent=formatDate(photo.mediaMetadata.creationTime);
       ed.classList.add('show');
-      document.getElementById('hudCount').textContent=(currentIndex+1)+' of '+photos.length;
-      hud.classList.add('show');
-    },400);
+      document.getElementById('hudCount').textContent = (currentIndex+1) + ' of ' + photos.length;
+      document.getElementById('hud').classList.add('show');
+    }, 400);
   };
-  img.onerror=()=>showPhoto(currentIndex+1);
-  img.src=`${photo.baseUrl}=w1920-h1080`;
+  img.onerror = () => showPhoto(currentIndex + 1);
+  img.src = photo.url + '=w1920-h1080';
   clearTimeout(slideTimer);
-  slideTimer=setTimeout(()=>showPhoto(currentIndex+1),SLIDE_DURATION);
+  slideTimer = setTimeout(() => showPhoto(currentIndex + 1), SLIDE_DURATION);
 }
 
-function relativeTime(isoString){
-  if(!isoString) return '';
-  const photoDate=new Date(isoString);
-  const now=new Date();
-  const diffMs=now-photoDate;
-  const diffHours=diffMs/(1000*60*60);
-  const diffDays=diffMs/(1000*60*60*24);
-  if(diffHours<1) return 'Just now';
-  if(diffHours<48){const h=Math.floor(diffHours);return h+(h===1?' hour ago':' hours ago');}
-  if(diffDays<14){const d=Math.floor(diffDays);return d+(d===1?' day ago':' days ago');}
-  if(diffDays<60){const w=Math.floor(diffDays/7);return w+(w===1?' week ago':' weeks ago');}
-  const totalMonths=(now.getFullYear()-photoDate.getFullYear())*12+(now.getMonth()-photoDate.getMonth());
-  if(totalMonths<12) return totalMonths+(totalMonths===1?' month ago':' months ago');
-  const years=Math.floor(totalMonths/12);
-  const rem=totalMonths%12;
-  if(rem===0) return years+(years===1?' year ago':' years ago');
-  return years+(years===1?' year, ':' years, ')+rem+(rem===1?' month ago':' months ago');
+function relativeTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso), now = new Date();
+  const ms = now - d, hrs = ms/3600000, days = ms/86400000;
+  if (hrs < 1) return 'Just now';
+  if (hrs < 48) { const h=Math.floor(hrs); return h+(h===1?' hour ago':' hours ago'); }
+  if (days < 14) { const dd=Math.floor(days); return dd+(dd===1?' day ago':' days ago'); }
+  if (days < 60) { const w=Math.floor(days/7); return w+(w===1?' week ago':' weeks ago'); }
+  const mo = (now.getFullYear()-d.getFullYear())*12+(now.getMonth()-d.getMonth());
+  if (mo < 12) return mo+(mo===1?' month ago':' months ago');
+  const y=Math.floor(mo/12), r=mo%12;
+  if (r===0) return y+(y===1?' year ago':' years ago');
+  return y+(y===1?' year, ':' years, ')+r+(r===1?' month ago':' months ago');
 }
 
-function formatDate(isoString){
-  if(!isoString) return '';
-  return new Date(isoString).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
+function formatDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
 }
 
-function startClock(){
+function startClock() {
   updateClock();
   clearInterval(clockTimer);
-  clockTimer=setInterval(updateClock,1000);
+  clockTimer = setInterval(updateClock, 1000);
 }
 
-function updateClock(){
-  const now=new Date();
-  document.getElementById('hudTime').textContent=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
-  document.getElementById('hudDate').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}).toUpperCase();
+function updateClock() {
+  const now = new Date();
+  document.getElementById('hudTime').textContent = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+  document.getElementById('hudDate').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}).toUpperCase();
 }
 
-function goToAlbums(){
-  clearTimeout(slideTimer);clearInterval(clockTimer);
-  document.getElementById('slideshow').style.display='none';
-  showScreen('screenAlbums');
-}
-
-document.addEventListener('keydown',e=>{
-  if(document.getElementById('slideshow').style.display!=='block') return;
-  if(e.key==='ArrowRight'||e.key===' '){clearTimeout(slideTimer);showPhoto(currentIndex+1);}
-  else if(e.key==='ArrowLeft'){clearTimeout(slideTimer);showPhoto(currentIndex-1);}
-  else if(e.key==='Escape') goToAlbums();
-  else if(e.key==='f'||e.key==='F'){!document.fullscreenElement?document.documentElement.requestFullscreen():document.exitFullscreen();}
+document.addEventListener('keydown', e => {
+  if (document.getElementById('slideshow').style.display!=='block') return;
+  if (e.key==='ArrowRight'||e.key===' ') { clearTimeout(slideTimer); showPhoto(currentIndex+1); }
+  else if (e.key==='ArrowLeft') { clearTimeout(slideTimer); showPhoto(currentIndex-1); }
+  else if (e.key==='f'||e.key==='F') { !document.fullscreenElement ? document.documentElement.requestFullscreen() : document.exitFullscreen(); }
 });
 
-function setError(id,msg){document.getElementById(id).textContent=msg;}
-function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}}
+function shuffle(a) { for (let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } }
+
+init();
 </script>
-<script src="https://accounts.google.com/gsi/client"></script>
 </body>
 </html>
