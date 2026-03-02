@@ -65,34 +65,24 @@ function extractPhotos(html) {
   const photos = [];
   const seen = new Set();
 
-  // ── Pattern A ──────────────────────────────────────────────────────────────
-  // Google Photos embeds data as nested arrays. Photo entries look like:
-  // ["AF1Qip...", null, null, [null, null, null, null, null, null, null, null, null, 
-  //   ["https://lh3.googleusercontent.com/...", 4032, 3024]], ...]
-  // We look for lh3 URLs paired with two adjacent integers (width, height)
-  const patternA = /"(https:\/\/lh3\.googleusercontent\.com\/[^"]{20,})",(\d{3,5}),(\d{3,5})/g;
+  // Google Photos photo URLs use /pw/ path (profile pics use /a/ - exclude those)
+  // URLs look like: https://lh3.googleusercontent.com/pw/AP1Gcz...=w54-h72-no
+  // We strip the size suffix and replace with our own
+  const photoPattern = /https:\/\/lh3\.googleusercontent\.com\/pw\/([A-Za-z0-9_\-]+)/g;
   let m;
-  while ((m = patternA.exec(html)) !== null) {
-    const url = m[1];
-    const w = parseInt(m[2]);
-    const h = parseInt(m[3]);
-    if (w >= 400 && h >= 400 && !seen.has(url)) {
-      seen.add(url);
-      photos.push({ url, width: w, height: h, date: findDateNear(html, m.index) });
-    }
+
+  while ((m = photoPattern.exec(html)) !== null) {
+    const baseUrl = 'https://lh3.googleusercontent.com/pw/' + m[1];
+    if (seen.has(baseUrl)) continue;
+    seen.add(baseUrl);
+
+    // Find a timestamp near this URL in the HTML
+    const date = findDateNear(html, m.index);
+    photos.push({ url: baseUrl, date });
   }
 
-  // ── Pattern B: looser match if A found nothing ──────────────────────────
-  if (!photos.length) {
-    const patternB = /https:\/\/lh3\.googleusercontent\.com\/([A-Za-z0-9_\-]{20,})/g;
-    while ((m = patternB.exec(html)) !== null) {
-      const url = 'https://lh3.googleusercontent.com/' + m[1];
-      if (!seen.has(url)) {
-        seen.add(url);
-        photos.push({ url, width: 1000, height: 1000, date: null });
-      }
-    }
-  }
+  // Deduplicate by key (same photo can appear multiple times at different sizes)
+  // The key is everything after /pw/ - already handled by seen set above
 
   return photos;
 }
