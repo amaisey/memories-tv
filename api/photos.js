@@ -18,6 +18,18 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(ALBUM_URL, { redirect: 'follow', headers: HEADERS });
     const html = await response.text();
+    if (req.query.debug === '1') {
+  const pwPattern = /https:\/\/lh3\.googleusercontent\.com\/pw\/([A-Za-z0-9_\-]+)/g;
+  const seen = new Set(); const contexts = []; let m;
+  while ((m = pwPattern.exec(html)) !== null) {
+    const key = m[1];
+    if (seen.has(key)) continue;
+    seen.add(key);
+    contexts.push({ photoKey: key.substring(0,20), surrounding: html.substring(Math.max(0, m.index-800), m.index+400) });
+    if (contexts.length >= 3) break;
+  }
+  return res.status(200).json({ contexts });
+}
     const photos = extractPhotos(html);
 
     if (!photos.length) {
