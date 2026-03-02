@@ -23,23 +23,17 @@ export default async function handler(req, res) {
     const htmlLength = html.length;
 
     if (debug) {
-      // Return raw debug info so we can see what Google is sending back
+      const pwMatch = html.match(/https:\/\/lh3\.googleusercontent\.com\/pw\/([A-Za-z0-9_\-]+)/);
+      const pwIndex = pwMatch ? html.indexOf(pwMatch[0]) : -1;
       return res.status(200).json({
         finalUrl,
         htmlLength,
         statusCode: response.status,
-        // First 3000 chars of HTML to see structure
-        htmlPreview: html.substring(0, 3000),
-        // Last 1000 chars
-        htmlTail: html.substring(html.length - 1000),
-        // Check for key markers
         hasLh3: html.includes('lh3.googleusercontent.com'),
         hasAFInit: html.includes('AF_initDataCallback'),
-        hasRemix: html.includes('remixContext'),
-        hasBuildApp: html.includes('buildApp'),
-        hasPhotoKey: html.includes('AF_dataServiceRequests'),
-        // Sample of any lh3 URLs found
         lh3Sample: (html.match(/lh3\.googleusercontent\.com\/[^"'\s]{10,}/g) || []).slice(0, 5),
+        // Show 1000 chars before and after the first /pw/ photo URL
+        photoContext: pwIndex >= 0 ? html.substring(Math.max(0, pwIndex - 200), pwIndex + 1000) : 'no /pw/ found',
       });
     }
 
