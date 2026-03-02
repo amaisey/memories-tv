@@ -69,6 +69,7 @@
 <script>
 let photos=[], currentIndex=0, activeLayer='A', slideTimer=null, clockTimer=null;
 const SLIDE_DURATION = 10000;
+const REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
 
 async function init() {
   document.getElementById('loading').style.display='flex';
@@ -96,6 +97,7 @@ async function init() {
       currentIndex=0; activeLayer='A';
       showPhoto(0);
       startClock();
+      scheduleRefresh();
     }, 600);
 
   } catch(e) {
@@ -105,6 +107,31 @@ async function init() {
     document.getElementById('loadError').style.display='block';
     document.getElementById('retryBtn').style.display='block';
   }
+}
+
+function scheduleRefresh() {
+  setTimeout(async () => {
+    try {
+      const resp = await fetch('/api/photos');
+      const data = await resp.json();
+      const fresh = (data.photos || []).filter(p => p.url);
+      if (fresh.length > 0) {
+        // Find any new photos not already in the list
+        const existingUrls = new Set(photos.map(p => p.url));
+        const newPhotos = fresh.filter(p => !existingUrls.has(p.url));
+        if (newPhotos.length > 0) {
+          // Shuffle new photos in at random positions
+          newPhotos.forEach(p => {
+            const insertAt = Math.floor(Math.random() * (photos.length + 1));
+            photos.splice(insertAt, 0, p);
+          });
+        }
+      }
+    } catch(e) {
+      // Silently fail — slideshow keeps running
+    }
+    scheduleRefresh(); // schedule next refresh
+  }, REFRESH_INTERVAL);
 }
 
 function showPhoto(index) {
