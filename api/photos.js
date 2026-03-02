@@ -23,17 +23,41 @@ export default async function handler(req, res) {
     const htmlLength = html.length;
 
     if (debug) {
-      const pwMatch = html.match(/https:\/\/lh3\.googleusercontent\.com\/pw\/([A-Za-z0-9_\-]+)/);
-      const pwIndex = pwMatch ? html.indexOf(pwMatch[0]) : -1;
+      // Find all /pw/ URLs and their positions
+      const pwPattern = /https:\/\/lh3\.googleusercontent\.com\/pw\/([A-Za-z0-9_\-]+)/g;
+      const pwMatches = [];
+      let pm;
+      while ((pm = pwPattern.exec(html)) !== null) {
+        pwMatches.push({ url: pm[0], index: pm.index });
+        if (pwMatches.length >= 10) break;
+      }
+
+      // Get context around the 4th unique photo (skip cover repeats)
+      const seen = new Set();
+      const unique = [];
+      for (const m of pwMatches) {
+        const key = m.url.split('=')[0];
+        if (!seen.has(key)) { seen.add(key); unique.push(m); }
+      }
+
+      const target = unique[3] || unique[0];
+      const ctx = target ? html.substring(Math.max(0, target.index - 100), target.index + 800) : 'none';
+
+      // Also look for all 13-digit timestamps in a sample of the data
+      const tsPattern = /\b(1[456789]\d{11})\b/g;
+      const timestamps = [];
+      let tm;
+      while ((tm = tsPattern.exec(html)) !== null) {
+        timestamps.push(parseInt(tm[1]));
+        if (timestamps.length >= 20) break;
+      }
+
       return res.status(200).json({
         finalUrl,
         htmlLength,
-        statusCode: response.status,
-        hasLh3: html.includes('lh3.googleusercontent.com'),
-        hasAFInit: html.includes('AF_initDataCallback'),
-        lh3Sample: (html.match(/lh3\.googleusercontent\.com\/[^"'\s]{10,}/g) || []).slice(0, 5),
-        // Show 1000 chars before and after the first /pw/ photo URL
-        photoContext: pwIndex >= 0 ? html.substring(Math.max(0, pwIndex - 200), pwIndex + 1000) : 'no /pw/ found',
+        uniquePhotoCount: unique.length,
+        fourthPhotoContext: ctx,
+        timestampSamples: timestamps.map(t => ({ ts: t, date: new Date(t).toISOString() })),
       });
     }
 
