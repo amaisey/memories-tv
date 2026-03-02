@@ -13,113 +13,66 @@ const HEADERS = {
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-
-  const debug = req.query.debug === '1';
+  res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
 
   try {
     const response = await fetch(ALBUM_URL, { redirect: 'follow', headers: HEADERS });
-    const finalUrl = response.url;
     const html = await response.text();
-    const htmlLength = html.length;
-
-    if (debug) {
-      // Find all /pw/ URLs and their positions
-      const pwPattern = /https:\/\/lh3\.googleusercontent\.com\/pw\/([A-Za-z0-9_\-]+)/g;
-      const pwMatches = [];
-      let pm;
-      while ((pm = pwPattern.exec(html)) !== null) {
-        pwMatches.push({ url: pm[0], index: pm.index });
-        if (pwMatches.length >= 10) break;
-      }
-
-      // Get context around the 4th unique photo (skip cover repeats)
-      const seen = new Set();
-      const unique = [];
-      for (const m of pwMatches) {
-        const key = m.url.split('=')[0];
-        if (!seen.has(key)) { seen.add(key); unique.push(m); }
-      }
-
-      const target = unique[3] || unique[0];
-      const ctx = target ? html.substring(Math.max(0, target.index - 100), target.index + 800) : 'none';
-
-      // Also look for all 13-digit timestamps in a sample of the data
-      const tsPattern = /\b(1[456789]\d{11})\b/g;
-      const timestamps = [];
-      let tm;
-      while ((tm = tsPattern.exec(html)) !== null) {
-        timestamps.push(parseInt(tm[1]));
-        if (timestamps.length >= 20) break;
-      }
-
-      return res.status(200).json({
-        finalUrl,
-        htmlLength,
-        uniquePhotoCount: unique.length,
-        fourthPhotoContext: ctx,
-        timestampSamples: timestamps.map(t => ({ ts: t, date: new Date(t).toISOString() })),
-      });
-    }
-
     const photos = extractPhotos(html);
 
     if (!photos.length) {
-      return res.status(200).json({
-        error: 'No photos found. Visit /api/photos?debug=1 to diagnose.',
-        photos: [],
-        debug: { finalUrl, htmlLength, hasLh3: html.includes('lh3.googleusercontent.com') }
-      });
+      return res.status(200).json({ error: 'No photos found.', photos: [] });
     }
 
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
     return res.status(200).json({ photos, total: photos.length, fetchedAt: new Date().toISOString() });
 
   } catch (err) {
-    return res.status(500).json({ error: err.message, stack: err.stack, photos: [] });
+    return res.status(500).json({ error: err.message, photos: [] });
   }
 }
 
 function extractPhotos(html) {
-  const photos = [];
-  const seen = new Set();
-
-  // Google Photos photo URLs use /pw/ path (profile pics use /a/ - exclude those)
-  // URLs look like: https://lh3.googleusercontent.com/pw/AP1Gcz...=w54-h72-no
-  // We strip the size suffix and replace with our own
+  // ── Step 1: extract photo URLs in order, deduplicated ──
   const photoPattern = /https:\/\/lh3\.googleusercontent\.com\/pw\/([A-Za-z0-9_\-]+)/g;
+  const seen = new Set();
+  const photos = [];
   let m;
 
   while ((m = photoPattern.exec(html)) !== null) {
     const baseUrl = 'https://lh3.googleusercontent.com/pw/' + m[1];
-    if (seen.has(baseUrl)) continue;
-    seen.add(baseUrl);
-
-    // Find a timestamp near this URL in the HTML
-    const date = findDateNear(html, m.index);
-    photos.push({ url: baseUrl, date });
-  }
-
-  // Deduplicate by key (same photo can appear multiple times at different sizes)
-  // The key is everything after /pw/ - already handled by seen set above
-
-  return photos;
-}
-
-function findDateNear(html, position) {
-  // Look within ±2000 chars of a photo URL for a Unix timestamp in ms
-  const slice = html.substring(Math.max(0, position - 500), position + 2000);
-  // Timestamps: 13-digit numbers starting with 1 (year ~2001–2033)
-  const tsPattern = /\b(1[3-9]\d{11})\b/g;
-  let m;
-  const candidates = [];
-  while ((m = tsPattern.exec(slice)) !== null) {
-    const ts = parseInt(m[1]);
-    if (ts > 978307200000 && ts <= Date.now()) { // after 2001 and not future
-      candidates.push(ts);
+    if (!seen.has(baseUrl)) {
+      seen.add(baseUrl);
+      photos.push({ url: baseUrl, date: null });
     }
   }
-  if (!candidates.length) return null;
-  // Pick the smallest (oldest) to avoid using "last modified" type dates
-  const ts = Math.min(...candidates);
-  return new Date(ts).toISOString();
+
+  // ── Step 2: extract all 13-digit timestamps, deduplicated, in order ──
+  // Filter to a narrow band of "recent but not today" timestamps
+  // The repeated value (server timestamp) will be filtered as a duplicate
+  const tsPattern = /\b(1[456789]\d{11})\b/g;
+  const tsSeen = new Set();
+  const timestamps = [];
+
+  while ((m = tsPattern.exec(html)) !== null) {
+    const ts = parseInt(m[1]);
+    // Must be in past, and not a duplicate
+    if (ts <= Date.now() && !tsSeen.has(ts)) {
+      tsSeen.add(ts);
+      timestamps.push(ts);
+    }
+  }
+
+  // Sort timestamps oldest-first (photo taken dates, not upload dates)
+  // The taken dates will be the earliest ones
+  timestamps.sort((a, b) => a - b);
+
+  // ── Step 3: pair photos with timestamps by index ──
+  // Google embeds one timestamp per photo in order
+  photos.forEach((photo, i) => {
+    if (timestamps[i]) {
+      photo.date = new Date(timestamps[i]).toISOString();
+    }
+  });
+
+  return photos;
 }
