@@ -19,7 +19,7 @@
   .retry-btn { margin-top: 20px; background: transparent; border: 1px solid rgba(201,168,76,0.3); color: var(--gold); font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; padding: 10px 24px; cursor: pointer; display: none; transition: all 0.2s; }
   .retry-btn:hover { border-color: var(--gold); }
   #slideshow { position: fixed; inset: 0; z-index: 10; }
-  .photo-layer { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.8s ease; }
+  .photo-layer { position: absolute; inset: 0; background-size: contain; background-position: center; background-repeat: no-repeat; opacity: 0; transition: opacity 1.8s ease; }
   .photo-layer.visible { opacity: 1; }
   #slideshow::before { content: ''; position: absolute; inset: 0; z-index: 2; background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.55) 100%); pointer-events: none; }
   #slideshow::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 55%; z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%); pointer-events: none; }
