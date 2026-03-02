@@ -1,4 +1,4 @@
-const ALBUM_URL = 'https://photos.app.goo.gl/Bid9DHteAa1gXYYc7';
+const ALBUM_URL = 'https://photos.google.com/u/1/share/AF1QipMB8CrO3eBXVo5W289OCOofviSb5lOR4Xf8b9LrfxnWdaTAmIeGpwRFWU2i8FD8Yw?key=YmFoV1RIbktLMVEtdGE2VWR5MXVnQ0pSMF9uYXln';
 
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
